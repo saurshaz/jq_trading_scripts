@@ -1,0 +1,8 @@
+#!/bin/sh  
+# FIXME: BE ABLE TO TAKE INPUTS FOR THE TV SCANNER
+_FILTER='{"filter":[{"left":"average_volume_10d_calc","operation":"nempty"},{"left":"type","operation":"equal","right":"stock"},{"left":"subtype","operation":"in_range","right":["common","foreign-issuer"]},{"left":"volume","operation":"egreater","right":100000},{"left":"RSI","operation":"greater","right":75},{"left":"Recommend.MA","operation":"nequal","right":0.1},{"left":"VWAP","operation":"less","right":"close"}],"options":{"active_symbols_only":true,"lang":"en"},"filter2":{"operator":"and","operands":[{"operation":{"operator":"or","operands":[{"expression":{"left":"Recommend.MA","operation":"in_range","right":[0.1,0.5]}},{"expression":{"left":"Recommend.MA","operation":"in_range","right":[0.5,1]}}]}}]},"symbols":{"query":{"types":[]},"tickers":[]},"columns":["logoid","name","Recommend.MA","close","SMA20","SMA50","SMA200","BB.upper","BB.lower","average_volume_10d_calc","description","type","subtype","update_mode","pricescale","minmov","fractional","minmove2","currency","fundamental_currency_code"],"sort":{"sortBy":"average_volume_10d_calc","sortOrder":"desc"},"price_conversion":{"to_symbol":false},"range":[0,150]}'
+sudo curl --request POST \
+  --url https://scanner.tradingview.com/india/scan \
+  --data "$_FILTER" \
+  | jq ' .data  |  [.[] | {s: .s, rank: .d[2], last: .d[3], sma20: .d[4], sma50: .d[5], sma200: .d[6], BBUp: .d[7], BBLow: .d[8], avgVol: .d[9]}] | sort_by(.rank, .volume) '
+# rank, last, sma20, sma50, sma200, BBup, BBlow, abgVol
